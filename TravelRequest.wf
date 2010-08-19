@@ -1,0 +1,43 @@
+# Employee fills in TR form
+	# Name, Destination, First Class
+# Workflow starts after the user submits a new TR form
+# Email sent to Manager with Approve/Disapprove
+# If the Manager does not act with in Wait interval
+  # The Email is sent to Manager's Manager
+# Manager or Manager's Manager Approves OR Disapproves with comments
+# Employee receives an email with confirmation OR rejection with comments
+# If rejected employee can:
+	# cancel the request then workflow stops
+	# resubmit with modifications then workflow begins again
+
+Workflow: TravelRequest
+  Receive data from TravelRequestForm
+  SendEmail to Manager using ManagerTemplate
+  Receive data from ApprovalForm Wait 10 days then
+    SendEmail to ManagersManager using ManagerTemplate
+  Condition Approve?
+    SendEmail to Employee using ApprovedTemplate
+  Else
+    SendEmail to Employee using RejectedTemplate
+  Receive data from CancelResubmitForm
+  Condition Status equals Cancelled
+    Stop
+  Else
+    GoTo Step 2
+  Stop
+
+Data: TravelRequest has many comments
+  Name, Destination, DateGoing@, DateReturn@, FirstClass?, 
+  Comments, Approve?, Status, Created@, Updated@,
+  LoginID, EmployeeEmail, ManagerEmail, ManagersManagerEmail
+
+Data: Comments
+  TravelRequestID, Comment, Name, Created@
+
+Service: http://localhost:4567/EmployeeName?login=:LoginID
+  In: LoginID
+  Out: Name
+
+Service: http://localhost:4567/EmployeeManagers?login=:LoginID
+  In: LoginID
+  Out: Name, EmployeeEmail, ManagerEmail, ManagersManagerEmail

@@ -1,0 +1,40 @@
+#1 Employee fills in Cost Item PSR Request form and submits it
+   # Sales Order number, SO line number, unit price, 
+   # less advance payment, quantity, invoice to address, 
+   # WAWF requirement
+#2 Email to Finance Manager Queue with link to form Approve/Disapprove
+#3 Finance Manager Approves/Disapproves with comments
+#4 Employee receives confirmation or rejection with comments
+#5 Approved PSR request to Invoicing Queue for Invoice Processing
+#6 If Rejected Employee 
+     # resubmits Cost Item PSR Request form
+       # Workflow re-starts at Step #2
+     # cancels
+       # Workflow Stops
+
+Workflow: CostItemPSR
+  Receive data from Employee through CostItemPSRForm
+  Step-2 is SendEmail to FinancialGroupEmail using FinancialGroupTemplate
+  Receive data from FinancialGroup through CostItemPSRApprovalForm
+  If Approved?
+  	SendEmail to EmployeeEmail using ConfirmationTemplate
+    SendEmail to InvoicingGroupEmail using ApprovedTemplate
+  Else
+    SendEmail to EmployeeEmail using RejectedTemplate
+    Receive data from Employee through CostItemPSRForm
+    If Cancelled?
+      Stop
+	Else
+	  GoTo Step-2
+	End
+  End
+  Stop
+
+Data: CostItemPSRData
+  Sales Order number, SO line number, Customer PO, unit price, 
+  less advance payment, quantity,  invoice to address, 
+  WAWF requirement, Comments, Approve?, Status
+
+Service: http://localhost:4567/Employee?login=:LoginID
+  In: LoginID
+  Out: Name, EmployeeEmail

@@ -1,0 +1,14 @@
+Processes
+	Define Workflow DSL
+		Verbs: Receive, Send, Condition, Execute, Stop
+		Blocks: Ruby, JSON
+	Develop Workflows functionality
+		Activity Parent and Activities
+		DSL execution engine
+			Reads workflow definition
+			Spits out warnings/errors
+			Executes step by step in a persistant manner
+		Workflow state persistance
+		Event Listeners
+	Create Users
+		Employees and their Managers

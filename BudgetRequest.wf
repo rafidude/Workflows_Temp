@@ -1,0 +1,24 @@
+# Employee fills in Budget Request form and submits it
+	# Item, Description, Amount
+# Workflow starts Status = New/None/Null
+# Email to Manager with link to form Approve/Disapprove
+# Manager Approves/Disapproves with comments
+# Employee receives confirmation or rejection with comments
+
+Workflow: BudgetRequest
+  Receive data from BudgetRequestForm
+  SendEmail to ManagerEmail using ManagerTemplate
+  Receive data from ApprovalForm
+  Condition Approve?
+    SendEmail to EmployeeEmail using ApprovedTemplate
+  Else
+    SendEmail to EmployeeEmail using RejectedTemplate
+  Stop
+
+Data: BudgetRequestData
+  Name, Item, Description, Amount#, Comments, Approve?, Status
+  LoginID, EmployeeEmail, ManagerEmail
+
+Service: http://localhost:4567/Employee?login=:LoginID
+  In: LoginID
+  Out: Name, EmployeeEmail, ManagerEmail, ManagersManagerEmail
