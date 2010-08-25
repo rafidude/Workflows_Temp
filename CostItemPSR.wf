@@ -11,23 +11,29 @@
        # Workflow re-starts at Step #2
      # cancels
        # Workflow Stops
+#7 InvoicingGroup Employee "Checks Out" the CostItemPSR
+#8 # InvoicingGroup Employee "Completes Invoicing" on CostItemPSR
 
 Workflow: CostItemPSR
-  Receive data from Employee through CostItemPSRForm
-  Step-2 is SendEmail to FinancialGroupEmail using FinancialGroupTemplate
-  Receive data from FinancialGroup through CostItemPSRApprovalForm
+  ReceiveData from Employee through CostItemPSRForm actions Submit, Cancel
+  SendEmail to FinancialGroupEmail using FinancialGroupTemplate label Step-2
+  ReceiveData from FinancialGroup through CostItemPSRForm actions Approve, Reject
   If Approved?
   	SendEmail to EmployeeEmail using ConfirmationTemplate
     SendEmail to InvoicingGroupEmail using ApprovedTemplate
   Else
     SendEmail to EmployeeEmail using RejectedTemplate
-    Receive data from Employee through CostItemPSRForm
+    ReceiveData from Employee through CostItemPSRForm actions Submit, Cancel
     If Cancelled?
       Stop
 	Else
 	  GoTo Step-2
 	End
   End
+  # InvoicingGroup Employee "Checks Out" the CostItemPSR
+  ReceiveData from InvoicingGroupEmployee through CostItemPSRForm actions "Check Out"
+  # InvoicingGroup Employee "Completes Invoicing" on CostItemPSR
+  ReceiveData from InvoicingGroupEmployee through CostItemPSRForm actions "Completed Invoice Processing"
   Stop
 
 Data: CostItemPSRData
@@ -35,6 +41,7 @@ Data: CostItemPSRData
   less advance payment, quantity,  invoice to address, 
   WAWF requirement, Comments, Approve?, Status
 
-Service: http://localhost:4567/Employee?login=:LoginID
+Service: GetEmployee
+  Uri: http://localhost:4567/GetEmployeeDetails?login=:LoginID
   In: LoginID
-  Out: Name, EmployeeEmail
+  Out: Name, EmployeeEmail, EmployeeID, ManagerID

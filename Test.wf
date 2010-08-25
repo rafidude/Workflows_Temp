@@ -1,0 +1,4 @@
+Service: GetEmployee
+  Uri: http://localhost:4567/GetEmployee?login=:LoginID
+  In: LoginID
+  Out: Name, EmployeeEmail
